@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect, useRef, useLayoutEffect, forwardRef} from "react"
+import { useMemo, useState, useReducer, useEffect, useRef, useLayoutEffect, forwardRef} from "react"
 import axios from "axios"
 import Button from "./components/Button.jsx"
 import User from "./components/User"
@@ -29,7 +29,9 @@ const Hooks = () => {
       // changing the state will rerender the page
       axios.get('https://jsonplaceholder.typicode.com/comments').then((response) => {
         console.log(response);
-        setData(response.data[0].email) // ==> changing the state will render the page
+        //setData(response.data[0].email) // ==> changing the state will render the page
+        // actually I want raw data 
+        setData(response.data)
         // to see how many times the API were called lets check 
         console.log('API WAS CALLED')
       })
@@ -68,6 +70,43 @@ const Hooks = () => {
 
   // useContext hook :
   const [username, setUsername] = useState('');
+  // will focus separately on this hook
+
+  // useMemo hook :
+  // used to improve performances
+  // lets take for example a long calculation
+  const findLongestName = (comments) => {
+    console.log('#########')
+    console.log(comments)
+    console.log('#########')
+    // Im actually calling the function inside the html, hm okay.
+    if (!comments) return null;
+    // "!" is a logic reversal operator, simple.
+    // empty string in boolean is false
+    // if comments is empty it's false , we take the opposite and return NULL, bye.
+    // or if comments is not empty it's true, we take the opposite and keep the calculation, ok.
+
+    let longestName = "";
+    for (let i = 0; i < comments.length; i++){
+      let currentName = comments[i].name;
+      if (currentName.length > longestName.length) {
+        longestName = currentName;
+      }
+    }
+    console.log('the function "findLongestName" was computed')
+
+    return longestName
+    // seems like it's to resolve issues were you repeat too much the same function that uses a performance
+    // just put it in a useMemo ?
+  }
+
+  const getLongestNameWithMemo = useMemo(() => findLongestName(data, [])) // works as useEffect ?
+  // ok its actually nice get new data only when it changes
+
+
+  // FROM KYLE
+  // custom hook ( a hook that can be stored in the localstorage to save data temp whenever page refreshes)
+  const [name, setName] = useState('')
 
 
   return (
@@ -87,8 +126,9 @@ const Hooks = () => {
       <hr/>
       <h5>useEffect Hook :</h5>
       {/* why it's not undefined at 1st render ? */}
-      {/* because data is not undefined : data, setData = useState('')*/ }
-      <p>{data}</p>
+      {/* because data is not undefined : data, setData = useState('')*/}
+      {/* this wont work :  <p>{data[0].email}</p> */}
+
       <hr />
       <h5>useRef Hook :</h5>
       <p ref={paragraphRef}>this is a random text</p>
@@ -101,7 +141,13 @@ const Hooks = () => {
       <Button buttonRef={buttonRef} />
       <hr />
       <h5>useContext Hook :</h5>
-      <Login setUsername={setUsername}/> <User username={username}/>
+      <Login setUsername={setUsername} /> <User username={username} />
+      <hr />
+      <h5>useMemo Hook :</h5>
+      <div>{findLongestName(data)}</div>
+      <hr />
+      <h5>customhook Hook :</h5>
+      <input type="text" value={name} onChange={e=>setName(e.target.value)}/>
     </>
   )
 }
