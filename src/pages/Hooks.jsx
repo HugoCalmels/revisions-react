@@ -3,6 +3,7 @@ import axios from "axios"
 import Button from "./components/Button.jsx"
 import User from "./components/User"
 import Login from "./components/Login"
+import useLocalStorage from "./components/useLocalStorage"
 const Hooks = () => {
 
   // useState Hook
@@ -106,7 +107,7 @@ const Hooks = () => {
 
   // FROM KYLE
   // custom hook ( a hook that can be stored in the localstorage to save data temp whenever page refreshes)
-  const [name, setName] = useState('')
+  const [name, setName] = useLocalStorage("name", '')
 
 
   return (
